@@ -29,14 +29,18 @@ class MyCrawlersAPI
         return json_decode($body, true);
     }
 
-    public function postContent($params)
+    public function postContent($title, $content, $locale)
     {
         $response = wp_remote_post("{$this->apiUrl}/crawl/contents", [
             'headers' => [
                 'Accept' => 'application/json',
-                'Authorization' => "Bearer {$params['token']}"
+                'Authorization' => $this->getAuthorizationToken(),
             ],
-            'body' => $params,
+            'body' => [
+                'title' => $title,
+                'content' => $content,
+                'locale' => $locale,
+            ],
         ]);
 
         $body = wp_remote_retrieve_body($response);
@@ -44,16 +48,24 @@ class MyCrawlersAPI
         return json_decode($body, true);
     }
 
-    public function translate($posts, $toLangCode)
+    public function translate($contentId, $toLangCode)
     {
-        $response = wp_remote_post("{$this->apiUrl}/crawl/contents/translates", [
+        $response = wp_remote_post("{$this->apiUrl}/crawl/contents/{$contentId}/translate", [
             'headers' => [
                 'Accept' => 'application/json'
             ],
             'body' => [
-                'ids' => $postId,
-                'to_locale' => $toLangCode
+                'locale' => $toLangCode
             ],
         ]);
+
+        $body = wp_remote_retrieve_body($response);
+
+        return json_decode($body, true);
+    }
+
+    protected function getAuthorizationToken()
+    {
+        return "Bearer {$params['token']}";
     }
 }
