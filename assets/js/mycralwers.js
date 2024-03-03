@@ -60,7 +60,6 @@ jQuery(document).ready(function($) {
                         };
                     },
                     processResults: function (res) {
-
                         return {
                             results: res.data.map(function (item) {
                                 return {
