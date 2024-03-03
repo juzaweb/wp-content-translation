@@ -23,12 +23,7 @@ function wtc_ajax_post_translate_handler()
     try {
         $result = wtc_post_and_translate($post_content, $post, $to_locale, $default_locale);
 
-        if (!isset($result['data']['success'])) {
-            $result['message'] = $result['message'] ?? __('Something went wrong. Please try again.', 'wtc');
-            $wpdb->query('ROLLBACK');
-        } else {
-            $wpdb->query('COMMIT');
-        }
+        $wpdb->query('COMMIT');
     } catch (Exception $e) {
         $wpdb->query('ROLLBACK');
         throw $e;
@@ -92,5 +87,21 @@ function wtc_post_and_translate($post_content, $post, $to_locale, $default_local
         );
     }
 
-    return $api->translate($post_content->remote_content_id, $to_locale);
+    $result = $api->translate($post_content->remote_content_id, $to_locale);
+
+    if (!isset($result['data']['success'])) {
+        $result['message'] = $result['message'] ?? __('Something went wrong. Please try again.', 'wtc');
+
+        $wpdb->update("{$wpdb->prefix}wtc_translate_histories",
+            [
+                'status' => 'error',
+                'error' => $result['message'],
+            ],
+            [
+                'id' => $translate_log->id,
+            ]
+        );
+    }
+
+    return $result;
 }

@@ -42,23 +42,35 @@ jQuery(document).ready(function($) {
         if ($this.val() == 'translate') {
 
             $this.after('<select id="languages-select" name="languages[]" multiple>' +
-                '<option value="en">English</option>' +
-                '<option value="es">Spanish</option>' +
+                //'<option value="en">English</option>' +
+                //'<option value="es">Spanish</option>' +
                 '</select>');
 
             $('#languages-select').select2({
                 width: '200px',
-                // ajax: {
-                //     url: 'https://mycrawlers.com/api/crawl/languages',
-                //     dataType: 'json',
-                //     data: function (params) {
-                //         return {
-                //             q: params.term,
-                //             search: $.trim(params.term),
-                //             page: params.page,
-                //         };
-                //     },
-                // }
+                delay: 250,
+                cache: true,
+                ajax: {
+                    url: 'http://crawler.local/api/crawl/languages',
+                    dataType: 'json',
+                    data: function (params) {
+                        return {
+                            q: params.term,
+                            page: params.page,
+                        };
+                    },
+                    processResults: function (res) {
+
+                        return {
+                            results: res.data.map(function (item) {
+                                return {
+                                    id: item.code,
+                                    text: item.name
+                                };
+                            })
+                        };
+                    }
+                }
             });
         } else {
             $("#languages-select").select2('destroy').remove();
