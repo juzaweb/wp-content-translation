@@ -2,12 +2,11 @@
 
 require __DIR__.'/../libs/MyCrawlersAPI.php';
 
-/**
- * custom option and settings
- */
 function wtc_settings_init()
 {
     register_setting('wtc', 'wtc_options');
+    register_setting('wtc_auto_post', 'wtc_auto_post_id');
+    register_setting('wtc_auto_post', 'wtc_auto_post_key');
 
     add_settings_section(
         'wtc_section_developers',
@@ -158,23 +157,42 @@ function wtc_options_page_html()
         if (isset($response['data']['name'])) {
             $options = get_option('wtc_options');
 
-            if (!isset($options['wtc_auto_post'])) {
+            $error = false;
+            if (!get_option('wtc_auto_post_id')) {
                 $apiKey = wtc_random_str(32);
 
                 $response = $api->postAutoPost([
                     'configs' => [
-                        'endpoint' => $options['wtc_api_url'],
+                        'endpoint' => $options['wtc_api_url'].'/wp-admin/admin-ajax.php?action=receive_post',
                         'api_key' => $apiKey,
                     ],
                 ]);
 
-                $options['wtc_auto_post_id'] = $response['data']['id'];
-                $options['wtc_auto_post_key'] = $apiKey;
+                if (isset($response['data']['id'])) {
+                    require_once( ABSPATH . 'wp-load.php' );
 
-                update_option('wtc_options', $options);
+                    update_option('wtc_auto_post_id', $response['data']['id']);
+                    update_option('wtc_auto_post_key', $apiKey);
+                } else {
+                    $error = $response['message'] ?? __('Unknown error', 'wtc');
+                }
             }
 
-            add_settings_error('wtc_messages', 'wtc_message', __('Update config successfully', 'wtc'), 'updated');
+            if ($error) {
+                add_settings_error(
+                    'wtc_messages',
+                    'wtc_message',
+                    __('Connect API failed:', 'wtc').' '.$error,
+                    'error'
+                );
+            } else {
+                add_settings_error(
+                    'wtc_messages',
+                    'wtc_message',
+                    __('Update config successfully', 'wtc'),
+                    'updated'
+                );
+            }
         } else {
             add_settings_error(
                 'wtc_messages',

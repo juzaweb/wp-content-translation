@@ -51,7 +51,7 @@ jQuery(document).ready(function($) {
                 delay: 250,
                 cache: true,
                 ajax: {
-                    url: 'http://crawler.local/api/crawl/languages',
+                    url: 'https://mycrawlers.com/api/crawl/languages',
                     dataType: 'json',
                     data: function (params) {
                         return {
