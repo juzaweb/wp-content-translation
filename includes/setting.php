@@ -16,26 +16,39 @@ function wtc_settings_init() {
     );
 
     add_settings_field(
-        'wtc_field_email',
-        __( 'Email', 'wtc' ),
-        'wtc_field_email',
+        'wtc_field_api_key',
+        __( 'API Key', 'wtc' ),
+        'wtc_field_api_key',
         'wtc',
         'wtc_section_developers',
         array(
-            'label_for'         => 'wtc_api_email',
+            'label_for'         => 'wtc_api_key',
             'class'             => 'wtc_row',
             'wtc_custom_data' => 'custom',
         )
     );
 
     add_settings_field(
-        'wtc_field_pass',
-        __( 'Password', 'wtc' ),
-        'wtc_field_pass',
+        'wtc_field_new_post',
+        __( 'What to do when there is a new translation?', 'wtc' ),
+        'wtc_field_new_post',
         'wtc',
         'wtc_section_developers',
         array(
-            'label_for'         => 'wtc_api_pass',
+            'label_for'         => 'wtc_api_new_post',
+            'class'             => 'wtc_row',
+            'wtc_custom_data' => 'custom',
+        )
+    );
+
+    add_settings_field(
+        'wtc_field_api_url',
+        __( 'Base URL', 'wtc' ),
+        'wtc_field_api_url',
+        'wtc',
+        'wtc_section_developers',
+        array(
+            'label_for'         => 'wtc_api_url',
             'class'             => 'wtc_row',
             'wtc_custom_data' => 'custom',
         )
@@ -56,32 +69,57 @@ function wtc_section_developers_callback( $args ) {
     <?php
 }
 
-function wtc_field_email( $args ) {
+function wtc_field_api_key( $args ) {
     // Get the value of the setting we've registered with register_setting()
-    // $options = get_option( 'wtc_options' );
+    $options = get_option( 'wtc_options' );
     ?>
 
-    <input type="email"
+    <input type="text"
         id="<?php echo esc_attr( $args['label_for'] ); ?>"
         data-custom="<?php echo esc_attr( $args['wtc_custom_data'] ); ?>"
         name="wtc_options[<?php echo esc_attr( $args['label_for'] ); ?>]"
+        value="<?php echo esc_attr( $options[$args['label_for']] ?? '' ); ?>"
         required
     >
     <?php
 }
 
-function wtc_field_pass( $args ) {
+function wtc_field_new_post( $args ) {
     // Get the value of the setting we've registered with register_setting()
-    // $options = get_option( 'wtc_options' );
+    $options = get_option( 'wtc_options' );
+    $value = $options[$args['label_for']] ?? '';
     ?>
 
-    <input type="password"
+    <select
            id="<?php echo esc_attr( $args['label_for'] ); ?>"
            data-custom="<?php echo esc_attr( $args['wtc_custom_data'] ); ?>"
            name="wtc_options[<?php echo esc_attr( $args['label_for'] ); ?>]"
            required
     >
+        <option value="new-post" <?php selected($value, 'new-post'); ?>><?php esc_html_e( 'Add New Post', 'wtc' ); ?></option>
 
+        <?php
+            if (wtc_is_wp_multilang_support()) :
+        ?>
+                <option value="wp-multilang" <?php selected($value, 'wp-multilang'); ?>><?php esc_html_e( 'Add language post (WP-Multilang)', 'wtc' ); ?></option>
+            <?php endif; ?>
+    </select>
+
+    <?php
+}
+
+function wtc_field_api_url( $args ) {
+    // Get the value of the setting we've registered with register_setting()
+    $options = get_option( 'wtc_options' );
+    ?>
+
+    <input type="text"
+           id="<?php echo esc_attr( $args['label_for'] ); ?>"
+           data-custom="<?php echo esc_attr( $args['wtc_custom_data'] ); ?>"
+           name="wtc_options[<?php echo esc_attr( $args['label_for'] ); ?>]"
+           value="<?php echo esc_attr( $options[$args['label_for']] ?? get_site_url() ); ?>"
+           required
+    >
     <?php
 }
 
@@ -104,14 +142,11 @@ function wtc_options_page_html() {
 
     // check if the user have submitted the settings
     if ( isset( $_GET['settings-updated'] ) ) {
-        $options = get_option( 'wtc_options' );
         $api = new MyCrawlersAPI();
-        $response = $api->login($options['wtc_api_email'], $options['wtc_api_pass']);
+        $response = $api->profile();
 
-        if (isset($response['data']['access_token'])) {
-            update_option('wtc_api_token', json_encode($response['data']));
-
-            add_settings_error( 'wtc_messages', 'wtc_message', __( 'Connect API successfully', 'wtc' ), 'updated' );
+        if (isset($response['data']['name'])) {
+            add_settings_error( 'wtc_messages', 'wtc_message', __( 'Update config successfully', 'wtc' ), 'updated' );
         } else {
             add_settings_error(
                     'wtc_messages',
@@ -126,19 +161,15 @@ function wtc_options_page_html() {
     ?>
     <div class="wrap">
         <h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
-        <?php if (get_option('wtc_api_token')): ?>
-            <p><b><?php _e('Connect API successfully', 'wtc'); ?></b></p>
-        <?php else: ?>
-            <form action="options.php" method="post">
-                <?php
-                settings_fields( 'wtc' );
+        <form action="options.php" method="post">
+            <?php
+            settings_fields( 'wtc_config' );
 
-                do_settings_sections( 'wtc' );
-                // output save settings button
-                submit_button( 'Connect API' );
-                ?>
-            </form>
-        <?php endif; ?>
+            do_settings_sections( 'wtc' );
+            // output save settings button
+            submit_button( 'Update Settings' );
+            ?>
+        </form>
     </div>
     <?php
 }

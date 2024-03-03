@@ -16,7 +16,7 @@ function wtc_get_default_language()
         return wpm_get_default_language();
     }
 
-    return 'en';
+    return get_locale();
 }
 
 function wtc_is_wp_multilang_support()

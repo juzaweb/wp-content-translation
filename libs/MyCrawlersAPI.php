@@ -12,15 +12,12 @@ class MyCrawlersAPI
 {
     protected $apiUrl = "http://cms.local/api";
 
-    public function login($email, $password)
+    public function profile()
     {
-        $response = wp_remote_post("{$this->apiUrl}/auth/login", [
+        $response = wp_remote_post("{$this->apiUrl}/auth/profile", [
             'headers' => [
-                'Accept' => 'application/json'
-            ],
-            'body' => [
-                'email' => $email,
-                'password' => $password
+                'Accept' => 'application/json',
+                'Authorization' => $this->getAuthorizationToken(),
             ],
         ]);
 
@@ -66,6 +63,8 @@ class MyCrawlersAPI
 
     protected function getAuthorizationToken()
     {
-        return "Bearer {$params['token']}";
+        $options = get_option( 'wtc_options' );
+
+        return "Bearer {$options['wtc_api_key']}";
     }
 }
