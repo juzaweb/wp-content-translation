@@ -1,4 +1,7 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
 
 add_action('wp_ajax_post_translate', 'wtc_ajax_post_translate_handler');
 
@@ -34,7 +37,7 @@ function wtc_ajax_post_translate_handler()
     wp_die();
 }
 
-add_action('wp_ajax_nopriv_receive_post', 'wtc_ajax_receive_post');
+//add_action('admin_post_nopriv_receive_post', 'wtc_ajax_receive_post');
 function wtc_ajax_receive_post()
 {
     global $wpdb;
@@ -48,10 +51,16 @@ function wtc_ajax_receive_post()
         wp_die();
     }
 
-    $title = sanitize_text_field($_POST['title']);
-    $content = esc_html($_POST['content']);
+    $title = sanitize_text_field($_POST['components']['title']);
+    $content = esc_html($_POST['components']['content']);
     $source_content_id = (int) $_POST['source_content_id'];
     $locale = sanitize_text_field($_POST['locale']);
+
+    if (empty($title) || empty($content) || empty($source_content_id) || empty($locale)) {
+        wp_send_json(['success' => false, 'message' => 'Invalid data.']);
+
+        wp_die();
+    }
 
     $translate_log = $wpdb->get_row(
         $wpdb->prepare(
