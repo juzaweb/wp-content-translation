@@ -34,7 +34,7 @@ function wtc_ajax_post_translate_handler()
     wp_die();
 }
 
-add_action('wp_ajax_receive_post', 'wtc_ajax_receive_post');
+add_action('wp_ajax_nopriv_receive_post', 'wtc_ajax_receive_post');
 function wtc_ajax_receive_post()
 {
     global $wpdb;
@@ -42,7 +42,7 @@ function wtc_ajax_receive_post()
     $options = get_option('wtc_options');
 
     // check header authorization
-    if (!isset($_SERVER['Authorization']) || $_SERVER['Authorization'] !== 'Basic '.get_option('wtc_auto_post_key')) {
+    if (!isset($_SERVER['HTTP_AUTHORIZATION']) || $_SERVER['HTTP_AUTHORIZATION'] !== 'Bearer '.get_option('wtc_auto_post_key')) {
         wp_send_json(['success' => false, 'message' => 'Unauthorized.']);
 
         wp_die();
@@ -50,8 +50,8 @@ function wtc_ajax_receive_post()
 
     $title = sanitize_text_field($_POST['title']);
     $content = esc_html($_POST['content']);
-    $source_content_id = $_POST['source_content_id'];
-    $locale = $_POST['locale'];
+    $source_content_id = (int) $_POST['source_content_id'];
+    $locale = sanitize_text_field($_POST['locale']);
 
     $translate_log = $wpdb->get_row(
         $wpdb->prepare(
