@@ -96,23 +96,7 @@ function wtc_ajax_receive_post()
         }
 
         add_post_meta($new_post_id, 'wtc_locale', $locale);
-
-        wp_send_json(['id' => $new_post_id, 'success' => true]);
     }
-
-    // if ($options['wtc_api_new_post'] == 'wp-multilang') {
-    //     $oldpost = get_post($translate_log->post_id);
-    //
-    //     $post = array(
-    //         'ID' => $oldpost->ID,
-    //         'post_title' => wpm_set_language_value(wpm_value_to_ml_array( $oldpost->post_title ), $title, array(), $locale),
-    //         'post_content' => wpm_set_language_value(wpm_value_to_ml_array( $oldpost->post_content ), $content, array(), $locale),
-    //     );
-    //
-    //     wp_update_post($post);
-    //
-    //     wp_send_json(['id' => $oldpost->ID, 'success' => true], 200);
-    // }
 
     if ($options['wtc_api_new_post'] == 'polylang') {
         $oldpost = get_post($translate_log->post_id);
@@ -126,36 +110,50 @@ function wtc_ajax_receive_post()
 
         $new_post_id = wp_insert_post($post_data_trans, true);
 
-        // Then set the language of the post
-
-        pll_set_post_language($oldpost->ID, $locale);
-
-        // Then bind them together with a translation relationship
-
-        pll_save_post_translations(array($locale => $new_post_id));
+        // Copy post metadata
+        $data = get_post_custom($translate_log->post_id);
+        foreach ($data as $key => $values) {
+            foreach ($values as $value) {
+                add_post_meta($new_post_id, $key, $value);
+            }
+        }
 
         add_post_meta($new_post_id, 'wtc_locale', $locale);
+
+        // Then set the language of the post
+        pll_set_post_language($new_post_id, $locale);
+
+        // Then bind them together with a translation relationship
+        $translations = pll_get_post_translations($oldpost->ID);
+
+        $translations[$locale] = $new_post_id;
+
+        pll_save_post_translations($translations);
     }
 
     if (isset($new_post_id)) {
         $wpdb->update(
-            'wtc_translate_histories',
+            "{$wpdb->prefix}wtc_translate_histories",
             [
                 'new_post_id' => $new_post_id,
                 'status' => 'success',
             ],
             ['id' => $translate_log->id]
         );
-    } else {
-        $wpdb->update(
-            'wtc_translate_histories',
-            [
-                'status' => 'failed',
-                'error' => 'Cannot create new post',
-            ],
-            ['id' => $translate_log->id]
-        );
+
+        wp_send_json(['id' => $new_post_id, 'success' => true]);
+
+        wp_die();
     }
+
+    $wpdb->update(
+        "{$wpdb->prefix}wtc_translate_histories",
+        [
+            'status' => 'failed',
+            'error' => 'Cannot create new post',
+        ],
+        ['id' => $translate_log->id]
+    );
 
     wp_send_json(['success' => true]);
 
