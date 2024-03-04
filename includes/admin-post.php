@@ -14,7 +14,7 @@ function wtc_register_translate_action($bulk_actions)
 add_filter( 'manage_posts_columns', 'set_custom_edit_book_columns' );
 function set_custom_edit_book_columns($columns) {
     unset( $columns['author'] );
-    $columns['translate_versions'] = __( 'Translate Versions', 'wtc' );
+    $columns['translate_versions'] = __( 'Translate Status', 'wtc' );
 
     return $columns;
 }
@@ -22,11 +22,22 @@ function set_custom_edit_book_columns($columns) {
 add_action( 'manage_posts_custom_column' , 'custom_book_column', 10, 2 );
 function custom_book_column( $column, $post_id ) {
     if ($column == 'translate_versions') {
-        $terms = get_the_term_list( $post_id , 'book_author' , '' , ',' , '' );
-        if ( is_string( $terms ) )
-            echo $terms;
-        else
-            _e( 'Unable to get author(s)', 'your_text_domain' );
+        global $wpdb;
+
+        $translate_logs = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT * FROM {$wpdb->prefix}wtc_translate_histories WHERE post_id = %s and status in ('pending', 'error');",
+                $post_id
+            )
+        );
+
+        foreach ($translate_logs as $translate_log) {
+            if ($translate_log->status == 'pending') {
+                echo $translate_log->locale . ': ' . __('Translating ', 'wtc');
+            } elseif ($translate_log->status == 'error') {
+                echo $translate_log->locale . ': ' . __('Error', 'wtc');
+            }
+        }
     }
 }
 

@@ -18,9 +18,9 @@ function wtc_ajax_post_translate_handler()
     $query = $wpdb->prepare("SELECT * FROM {$wpdb->prefix}wtc_post_content WHERE post_id = %s;", $post->ID);
     $post_content = $wpdb->get_row($query);
 
-    if (function_exists('wpm_translate_object') && wtc_is_wp_multilang_support()) {
-        $post = wpm_translate_object($post, $default_locale);
-    }
+    // if (function_exists('wpm_translate_object') && wtc_is_wp_multilang_support()) {
+    //     $post = wpm_translate_object($post, $default_locale);
+    // }
 
     $wpdb->query('START TRANSACTION');
     try {
@@ -136,6 +136,28 @@ function wtc_ajax_receive_post()
 
         add_post_meta($new_post_id, 'wtc_locale', $locale);
     }
+
+    if (isset($new_post_id)) {
+        $wpdb->update(
+            'wtc_translate_histories',
+            [
+                'new_post_id' => $new_post_id,
+                'status' => 'success',
+            ],
+            ['id' => $translate_log->id]
+        );
+    } else {
+        $wpdb->update(
+            'wtc_translate_histories',
+            [
+                'status' => 'failed',
+                'error' => 'Cannot create new post',
+            ],
+            ['id' => $translate_log->id]
+        );
+    }
+
+    wp_send_json(['success' => true]);
 
     wp_die();
 }
