@@ -103,10 +103,10 @@ function wtc_field_new_post($args)
                 'wtc'); ?></option>
 
         <?php
-        if (wtc_is_wp_multilang_support()) :
+        if (wtc_is_polylang_support()) :
             ?>
-            <option value="wp-multilang" <?php selected($value,
-                'wp-multilang'); ?>><?php esc_html_e('Add language post (WP-Multilang)', 'wtc'); ?></option>
+            <option value="polylang" <?php selected($value,
+                'polylang'); ?>><?php esc_html_e('Add language post (Polylang)', 'wtc'); ?></option>
         <?php endif; ?>
     </select>
 

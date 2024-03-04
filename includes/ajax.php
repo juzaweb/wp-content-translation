@@ -37,7 +37,7 @@ function wtc_ajax_post_translate_handler()
     wp_die();
 }
 
-//add_action('admin_post_nopriv_receive_post', 'wtc_ajax_receive_post');
+add_action('wp_ajax_nopriv_receive_post', 'wtc_ajax_receive_post');
 function wtc_ajax_receive_post()
 {
     global $wpdb;
@@ -46,13 +46,13 @@ function wtc_ajax_receive_post()
 
     // check header authorization
     if (!isset($_SERVER['HTTP_AUTHORIZATION']) || $_SERVER['HTTP_AUTHORIZATION'] !== 'Bearer '.get_option('wtc_auto_post_key')) {
-        wp_send_json(['success' => false, 'message' => 'Unauthorized.']);
+        wp_send_json(['success' => false, 'message' => 'Unauthorized.'], 422);
 
         wp_die();
     }
 
     $title = sanitize_text_field($_POST['components']['title']);
-    $content = esc_html($_POST['components']['content']);
+    $content = $_POST['components']['content'];
     $source_content_id = (int) $_POST['source_content_id'];
     $locale = sanitize_text_field($_POST['locale']);
 
@@ -71,7 +71,7 @@ function wtc_ajax_receive_post()
     );
 
     if (empty($translate_log)) {
-        wp_send_json(['success' => false, 'message' => 'Not found.']);
+        wp_send_json(['success' => false, 'message' => 'Not found.'], 422);
 
         wp_die();
     }
@@ -100,18 +100,41 @@ function wtc_ajax_receive_post()
         wp_send_json(['id' => $new_post_id, 'success' => true]);
     }
 
-    if ($options['wtc_api_new_post'] == 'wp-multilang') {
-        $oldpost = get_post($translate_log->post_id);
+    // if ($options['wtc_api_new_post'] == 'wp-multilang') {
+    //     $oldpost = get_post($translate_log->post_id);
+    //
+    //     $post = array(
+    //         'ID' => $oldpost->ID,
+    //         'post_title' => wpm_set_language_value(wpm_value_to_ml_array( $oldpost->post_title ), $title, array(), $locale),
+    //         'post_content' => wpm_set_language_value(wpm_value_to_ml_array( $oldpost->post_content ), $content, array(), $locale),
+    //     );
+    //
+    //     wp_update_post($post);
+    //
+    //     wp_send_json(['id' => $oldpost->ID, 'success' => true], 200);
+    // }
 
-        $post = array(
-            'ID' => $oldpost->ID,
-            'post_title' => wpm_set_language_value(wpm_value_to_ml_array( $oldpost->post_title ), $title, array(), $locale),
-            'post_content' => wpm_set_language_value(wpm_value_to_ml_array( $oldpost->post_content ), $content, array(), $locale),
+    if ($options['wtc_api_new_post'] == 'polylang') {
+        $oldpost = get_post($translate_log->post_id);
+        $post_data_trans = array(
+            'post_title' => $title,
+            'post_content' => $content,
+            'post_status' => 'publish',
+            'post_type' => $oldpost->post_type,
+            'post_author' => $oldpost->post_author,
         );
 
-        wp_update_post($post);
+        $new_post_id = wp_insert_post($post_data_trans, true);
 
-        wp_send_json(['id' => $oldpost->ID, 'success' => true]);
+        // Then set the language of the post
+
+        pll_set_post_language($oldpost->ID, $locale);
+
+        // Then bind them together with a translation relationship
+
+        pll_save_post_translations(array($locale => $new_post_id));
+
+        add_post_meta($new_post_id, 'wtc_locale', $locale);
     }
 
     wp_die();
