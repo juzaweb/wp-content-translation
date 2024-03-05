@@ -10,7 +10,7 @@
 
 class MyCrawlersAPI
 {
-    protected $apiUrl = "http://crawler.local/api";
+    protected $apiUrl = "https://mycrawlers.com/api";
 
     public function profile()
     {
