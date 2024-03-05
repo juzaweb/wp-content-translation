@@ -12,7 +12,7 @@ Automatic translate content for your WordPress site.
 
 == Description ==
 
-This plugin helps you automatically translate posts into various languages via [My Crawlers](https://mycrawlers.com) api.
+This plugin helps you automatically translate posts into various languages via [My Crawlers](https://mycrawlers.com) api. Support Polylang plugin for multiple languages' website.
 
 == Install ==
 * Log in to your WordPress admin dashboard.
