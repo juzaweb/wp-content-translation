@@ -15,8 +15,9 @@ function wtc_ajax_post_translate_handler()
 
     $post = get_post($post_id);
 
-    $query = $wpdb->prepare("SELECT * FROM {$wpdb->prefix}wtc_post_content WHERE post_id = %s;", $post->ID);
-    $post_content = $wpdb->get_row($query);
+    $post_content = $wpdb->get_row(
+        $wpdb->prepare("SELECT * FROM {$wpdb->prefix}wtc_post_content WHERE post_id = %s;", $post->ID)
+    );
 
     // if (function_exists('wpm_translate_object') && wtc_is_wp_multilang_support()) {
     //     $post = wpm_translate_object($post, $default_locale);
@@ -194,11 +195,12 @@ function wtc_post_and_translate($post_content, $post, $to_locale, $default_local
         $wpdb->insert("{$wpdb->prefix}wtc_post_content", [
             'post_id' => $post->ID,
             'remote_content_id' => $remote_post['data']['id'],
-            'created_at' => date('Y-m-d H:i:s'),
+            'created_at' => gmdate('Y-m-d H:i:s'),
         ]);
 
-        $query = $wpdb->prepare("SELECT * FROM {$wpdb->prefix}wtc_post_content WHERE post_id = %s;", $post->ID);
-        $post_content = $wpdb->get_row($query);
+        $post_content = $wpdb->get_row(
+            $wpdb->prepare("SELECT * FROM {$wpdb->prefix}wtc_post_content WHERE post_id = %s;", $post->ID)
+        );
     }
 
     $translate_log = $wpdb->get_row(
@@ -219,7 +221,7 @@ function wtc_post_and_translate($post_content, $post, $to_locale, $default_local
             //'new_post_id' => $post->ID,
             'remote_content_id' => $post_content->remote_content_id,
             'locale' => $to_locale,
-            'created_at' => date('Y-m-d H:i:s'),
+            'created_at' => gmdate('Y-m-d H:i:s'),
             'status' => 'pending',
         ]);
     } else {

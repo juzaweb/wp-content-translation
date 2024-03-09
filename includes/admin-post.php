@@ -33,9 +33,9 @@ function custom_book_column( $column, $post_id ) {
 
         foreach ($translate_logs as $translate_log) {
             if ($translate_log->status == 'pending') {
-                echo $translate_log->locale . ': ' . __('Translating ', 'wtc');
+                echo esc_html($translate_log->locale) . ': ' . esc_html__('Translating ', 'wtc');
             } elseif ($translate_log->status == 'error') {
-                echo $translate_log->locale . ': ' . __('Error', 'wtc');
+                echo esc_html($translate_log->locale) . ': ' . esc_html__('Error', 'wtc');
             }
         }
     }
