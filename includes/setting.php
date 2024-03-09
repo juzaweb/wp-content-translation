@@ -42,6 +42,19 @@ function wtc_settings_init()
     );
 
     add_settings_field(
+        'wtc_field_new_post_status',
+        __('What to do when there is a new translation?', 'wtc'),
+        'wtc_field_new_post_status',
+        'wtc',
+        'wtc_section_developers',
+        array(
+            'label_for' => 'wtc_api_new_post_status',
+            'class' => 'wtc_row',
+            'wtc_custom_data' => 'custom',
+        )
+    );
+
+    add_settings_field(
         'wtc_field_api_url',
         __('Base URL', 'wtc'),
         'wtc_field_api_url',
@@ -110,6 +123,29 @@ function wtc_field_new_post($args)
         <?php endif; ?>
     </select>
 
+    <?php
+}
+
+function wtc_field_new_post_status($args)
+{
+    // Get the value of the setting we've registered with register_setting()
+    $options = get_option('wtc_options');
+    $value = $options[$args['label_for']] ?? 'draft';
+    $post_statuses = get_post_statuses();
+    ?>
+
+    <select
+            id="<?php echo esc_attr($args['label_for']); ?>"
+            data-custom="<?php echo esc_attr($args['wtc_custom_data']); ?>"
+            name="wtc_options[<?php echo esc_attr($args['label_for']); ?>]"
+            required
+    >
+        <?php foreach ($post_statuses as $key => $status) : ?>
+            <option value="<?php echo esc_attr($key); ?>" <?php selected($value, $key); ?>>
+                <?php echo esc_html($status); ?>
+            </option>
+        <?php endforeach; ?>
+    </select>
     <?php
 }
 
