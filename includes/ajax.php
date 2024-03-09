@@ -76,12 +76,14 @@ function wtc_ajax_receive_post()
         wp_die();
     }
 
+    $new_post_status = $options['wtc_api_new_post_status'] ?? 'draft';
+
     if ($options['wtc_api_new_post'] == 'new-post') {
         $oldpost = get_post($translate_log->post_id);
         $post = array(
             'post_title' => $title,
             'post_content' => $content,
-            'post_status' => 'publish',
+            'post_status' => $new_post_status,
             'post_type' => $oldpost->post_type,
             'post_author' => $oldpost->post_author,
         );
@@ -95,6 +97,15 @@ function wtc_ajax_receive_post()
             }
         }
 
+        // Copy post terms
+        $taxonomies = get_post_taxonomies($oldpost->ID);
+        foreach ($taxonomies as $taxonomy) {
+            $term_ids = wp_get_object_terms($oldpost->ID, $taxonomy, ['fields' => 'ids']);
+
+            wp_set_object_terms($new_post_id, $term_ids, $taxonomy);
+        }
+
+        // Add post meta for locale
         add_post_meta($new_post_id, 'wtc_locale', $locale);
     }
 
@@ -103,7 +114,7 @@ function wtc_ajax_receive_post()
         $post_data_trans = array(
             'post_title' => $title,
             'post_content' => $content,
-            'post_status' => 'publish',
+            'post_status' => $new_post_status,
             'post_type' => $oldpost->post_type,
             'post_author' => $oldpost->post_author,
         );
@@ -118,6 +129,15 @@ function wtc_ajax_receive_post()
             }
         }
 
+        // Copy post terms
+        $taxonomies = get_post_taxonomies($oldpost->ID);
+        foreach ($taxonomies as $taxonomy) {
+            $term_ids = wp_get_object_terms($oldpost->ID, $taxonomy, ['fields' => 'ids']);
+
+            wp_set_object_terms($new_post_id, $term_ids, $taxonomy);
+        }
+
+        // Add post meta for locale
         add_post_meta($new_post_id, 'wtc_locale', $locale);
 
         // Then set the language of the post
