@@ -17,7 +17,7 @@ This plugin helps you automatically translate posts into various languages via [
 == Installation ==
 * Log in to your WordPress admin dashboard.
 * Navigate to "Plugins" > "Add New."
-* Search for the translation plugin you have or upload the plugin file if you have it downloaded.
+* Search "Content Translation" plugin you have or upload the plugin file if you have it downloaded.
 * Click "Install Now" and then activate the plugin.
 
 == Settings ==
