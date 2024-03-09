@@ -186,7 +186,8 @@ function wtc_options_page_html()
     }
 
     // check if the user have submitted the settings
-    if (isset($_GET['settings-updated'])) {
+    $nonce = wp_create_nonce('wtc_options');
+    if (isset($_GET['settings-updated']) && wp_verify_nonce($nonce, 'wtc_options')) {
         $api = new MyCrawlersAPI();
         $response = $api->profile();
 
