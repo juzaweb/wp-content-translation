@@ -53,7 +53,7 @@ function wtc_ajax_receive_post()
     }
 
     $title = sanitize_text_field($_POST['components']['title']);
-    $content = esc_html($_POST['components']['content']);
+    $content = wp_filter_post_kses($_POST['components']['content']);
     $source_content_id = (int) $_POST['source_content_id'];
     $locale = sanitize_text_field($_POST['locale']);
 
