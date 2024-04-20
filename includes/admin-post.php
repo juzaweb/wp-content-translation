@@ -1,4 +1,5 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 // Add the translation action
 add_filter('bulk_actions-edit-post', 'wtc_register_translate_action');
@@ -11,16 +12,16 @@ function wtc_register_translate_action($bulk_actions)
 }
 
 // Add the custom columns to the post types
-add_filter( 'manage_posts_columns', 'set_custom_edit_book_columns' );
-function set_custom_edit_book_columns($columns) {
+add_filter( 'manage_posts_columns', 'wtc_set_custom_edit_book_columns' );
+function wtc_set_custom_edit_book_columns($columns) {
     unset( $columns['author'] );
     $columns['translate_versions'] = __( 'Translate Status', 'wtc' );
 
     return $columns;
 }
 
-add_action( 'manage_posts_custom_column' , 'custom_book_column', 10, 2 );
-function custom_book_column( $column, $post_id ) {
+add_action( 'manage_posts_custom_column' , 'wtc_custom_book_column', 10, 2 );
+function wtc_custom_book_column( $column, $post_id ) {
     if ($column == 'translate_versions') {
         global $wpdb;
 

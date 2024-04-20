@@ -1,14 +1,6 @@
 <?php
-/**
- * JUZAWEB CMS - Laravel CMS for Your Project
- *
- * @package    juzaweb/cms
- * @author     The Anh Dang
- * @link       https://juzaweb.com
- * @license    GNU V2
- */
 
-class MyCrawlersAPI
+class WTC_MyCrawlersAPI
 {
     protected $apiUrl = "https://mycrawlers.com/api";
 

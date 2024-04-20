@@ -1,6 +1,7 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) exit;
 
-require __DIR__.'/../libs/MyCrawlersAPI.php';
+require __DIR__.'/../libs/WTC_MyCrawlersAPI.php';
 
 function wtc_settings_init()
 {
@@ -188,7 +189,7 @@ function wtc_options_page_html()
     // check if the user have submitted the settings
     $nonce = wp_create_nonce('wtc_options');
     if (isset($_GET['settings-updated']) && wp_verify_nonce($nonce, 'wtc_options')) {
-        $api = new MyCrawlersAPI();
+        $api = new WTC_MyCrawlersAPI();
         $response = $api->profile();
 
         if (isset($response['data']['name'])) {

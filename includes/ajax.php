@@ -9,8 +9,8 @@ function wtc_ajax_post_translate_handler()
 {
     global $wpdb;
 
-    $post_id = $_POST['post_id'];
-    $to_locale = $_POST['to_locale'];
+    $post_id = (int) $_POST['post_id'];
+    $to_locale = sanitize_text_field($_POST['to_locale']);
     $default_locale = wtc_get_default_language();
 
     $post = get_post($post_id);
@@ -53,7 +53,7 @@ function wtc_ajax_receive_post()
     }
 
     $title = sanitize_text_field($_POST['components']['title']);
-    $content = $_POST['components']['content'];
+    $content = esc_html($_POST['components']['content']);
     $source_content_id = (int) $_POST['source_content_id'];
     $locale = sanitize_text_field($_POST['locale']);
 
@@ -184,7 +184,7 @@ function wtc_ajax_receive_post()
 function wtc_post_and_translate($post_content, $post, $to_locale, $default_locale)
 {
     global $wpdb;
-    $api = new MyCrawlersAPI();
+    $api = new WTC_MyCrawlersAPI();
     if (empty($post_content)) {
         $remote_post = $api->postContent(
             $post->post_title,

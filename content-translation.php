@@ -10,6 +10,8 @@
  * Requires PHP: 7.4
  */
 
+if ( ! defined( 'ABSPATH' ) ) exit;
+
 define('WTC_BASE_PATH', __DIR__);
 
 include __DIR__ . '/includes/styles.php';
