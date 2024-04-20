@@ -8,6 +8,7 @@
  * Text Domain: wtc
  * Requires at least: 6.3
  * Requires PHP: 7.4
+ * License: GPLv3 or later
  */
 
 if ( ! defined( 'ABSPATH' ) ) exit;

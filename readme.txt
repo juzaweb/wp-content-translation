@@ -1,9 +1,10 @@
 === Content Translation ===
 Contributors: Juzaweb
-Tags: translate, translation, language, multilanguage, international, localization
+Tags: translate, translation, language, multilanguage, international
 Requires at least: 6.3
 Tested up to: 6.4
 Requires PHP: 7.4
+Stable tag: 1.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -11,7 +12,8 @@ Automatic translate content for your WordPress site.
 
 == Description ==
 
-This plugin helps you automatically translate posts into various languages via [My Crawlers](https://mycrawlers.com) api. Support Polylang plugin for multiple languages' website.
+This plugin helps you automatically translate posts into various languages via [My Crawlers](https://mycrawlers.com) API.
+Support Polylang plugin for multiple languages' website.
 
 == Installation ==
 * Log in to your WordPress admin dashboard.
@@ -27,3 +29,6 @@ This plugin helps you automatically translate posts into various languages via [
 * Go to "Content Translation" in menu
 * Enter your Personal access tokens to API Key
 * Update setting
+
+== INTEGRATIONS ==
+The plugin uses [My Crawlers](https://mycrawlers.com) API to translate your content. Please read My Crawlers [Privacy Policy](https://mycrawlers.com/privacy-policy) before using the plugin
