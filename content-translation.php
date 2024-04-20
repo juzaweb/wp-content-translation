@@ -3,7 +3,7 @@
  * Plugin Name: Content Translation
  * Description: Automatic translate content for your WordPress site.
  * Version: 1.0
- * Author: My Crawlers
+ * Author: Juzaweb
  * Author URI: https://juzaweb.com
  * Text Domain: wtc
  * Requires at least: 6.3
